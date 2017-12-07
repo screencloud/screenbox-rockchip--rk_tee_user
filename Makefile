@@ -33,6 +33,7 @@ ta:
 ifneq ($(wildcard $(TA_DEV_KIT_DIR)/host_include/conf.mk),)
 clean:
 	$(q)$(MAKE) -C ta O=$(out-dir)/ta q=$(q) $@
+	$(q)find ta/ \( -name "*.ta" -o -name "*.dmp" -o -name "*.elf" -o -name "*.map" -o -name "*.d" \) -exec rm -rf {} \;
 else
 clean:
 	$(q)echo "TA_DEV_KIT_DIR is not correctly defined"

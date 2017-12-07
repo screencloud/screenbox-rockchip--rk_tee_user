@@ -2,7 +2,7 @@ LOCAL_PATH := $(call my-dir)
 OPTEE_TEST_PATH := $(shell pwd)/$(LOCAL_PATH)
 
 VERSION = $(shell git describe --always --dirty=-dev 2>/dev/null || echo Unknown)
-OPTEE_CLIENT_PATH ?= $(OPTEE_TEST_PATH)/client_export
+OPTEE_CLIENT_PATH ?= $(LOCAL_PATH)/client_export
 TA_DEV_KIT_DIR ?= $(OPTEE_TEST_PATH)/export-user_ta
 -include $(TA_DEV_KIT_DIR)/host_include/conf.mk
 ifeq ($(strip $(TARGET_ARCH)), arm64)
@@ -47,6 +47,9 @@ LOCAL_C_INCLUDES := $(LOCAL_PATH)/ta/testapp/include \
 
 LOCAL_MODULE := rkdemo
 LOCAL_MODULE_TAGS := optional
+ifeq (1,$(strip $(shell expr $(PLATFORM_VERSION) \>= 8.0)))
+LOCAL_PROPRIETARY_MODULE := true
+endif
 include $(BUILD_EXECUTABLE)
 
 ################################################################################
@@ -64,6 +67,9 @@ LOCAL_C_INCLUDES := $(LOCAL_PATH)/ta/testapp_storage/include \
 
 LOCAL_MODULE := rkdemo_storage
 LOCAL_MODULE_TAGS := optional
+ifeq (1,$(strip $(shell expr $(PLATFORM_VERSION) \>= 8.0)))
+LOCAL_PROPRIETARY_MODULE := true
+endif
 include $(BUILD_EXECUTABLE)
 
 include $(LOCAL_PATH)/ta/Android.mk
