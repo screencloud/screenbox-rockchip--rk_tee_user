@@ -1,39 +1,62 @@
-ifneq ($O,)
-	out-dir := $O
+ifeq ($O,)
+out-dir := $(CURDIR)/out
 else
-	# If no build folder has been specified, then create all build files in
-	# the current directory under a folder named out.
-	out-dir := $(CURDIR)/out
+include scripts/common.mk
+out-dir := $(call strip-trailing-slashes-and-dots,$(O))
+ifeq ($(out-dir),)
+$(error invalid output directory (O=$(O)))
+endif
 endif
 
 -include $(TA_DEV_KIT_DIR)/host_include/conf.mk
 
 ifneq ($V,1)
 	q := @
+	echo := @echo
 else
 	q :=
+	echo := @:
 endif
+# export 'q', used by sub-makefiles.
+export q
+
+# If _HOST or _TA specific compilers are not specified, then use CROSS_COMPILE
+CROSS_COMPILE_HOST ?= $(CROSS_COMPILE)
+CROSS_COMPILE_TA ?= $(CROSS_COMPILE)
 
 .PHONY: all
 ifneq ($(wildcard $(TA_DEV_KIT_DIR)/host_include/conf.mk),)
+ifeq "$(BUILD_CA)" "y"
+all: rkdemo ta
+else
 all: ta
+endif
 else
 all:
 	$(q)echo "TA_DEV_KIT_DIR is not correctly defined" && false
 endif
 
+.PHONY: rkdemo
+rkdemo:
+	$(q)$(MAKE) -C host/rkdemo CROSS_COMPILE="$(CROSS_COMPILE_HOST)" \
+				--no-builtin-variables \
+				q=$(q) \
+				O=$(out-dir)/rkdemo  \
+				$@
+
 .PHONY: ta
 ta:
 	$(q)$(MAKE) -C ta CROSS_COMPILE="$(CROSS_COMPILE_TA)" \
-			  q=$(q) \
-			  O=$(out-dir)/ta \
+			  O=$(out-dir) \
 			  $@
 
 .PHONY: clean
 ifneq ($(wildcard $(TA_DEV_KIT_DIR)/host_include/conf.mk),)
 clean:
-	$(q)$(MAKE) -C ta O=$(out-dir)/ta q=$(q) $@
-	$(q)find ta/ \( -name "*.ta" -o -name "*.dmp" -o -name "*.elf" -o -name "*.map" -o -name "*.d" \) -exec rm -rf {} \;
+	$(q)$(MAKE) -C host/rkdemo O=$(out-dir) $@
+	$(q)$(MAKE) -C ta O=$(out-dir) $@
+	$(q)find ta/ \( -name "*.ta" -o -name "*.dmp" -o -name "*.elf" -o -name "*.map" \) -exec rm -rf {} \;
+
 else
 clean:
 	$(q)echo "TA_DEV_KIT_DIR is not correctly defined"
@@ -115,19 +138,17 @@ patch-generate-host: patch-package
 	$(q) mkdir -p ${GP_XTEST_IN_DIR} ${GP_XTEST_IN_DIR}
 	$(q)find ${CFG_GP_PACKAGE_PATH}/packages -type f -name "*.xml" -exec cp -p {} ${GP_XTEST_IN_DIR} \;
 	$(q)find ${CFG_GP_XSL_PACKAGE_PATH}/packages -type f -name "*.xsl" -exec cp -p {} ${GP_XTEST_IN_DIR} \;
-	$(call patch-xalan,TEE.xml,adbg_case_declare.xsl,adbg_case_declare.h)
-	$(call patch-xalan,TEE.xml,adbg_entry_declare.xsl,adbg_entry_declare.h)
-	$(call patch-xalan,TEE.xml,TEE.xsl,xtest_7000_gp.c)
-	$(call patch-xalan,TEE_DataStorage_API.xml,TEE_DataStorage_API.xsl,xtest_7500.c)
-	$(call patch-xalan,TEE_Internal_API.xml,TEE_Internal_API.xsl,xtest_8000.c)
-	$(call patch-xalan,TEE_TimeArithm_API.xml,TEE_TimeArithm_API.xsl,xtest_8500.c)
-	$(call patch-xalan,TEE_Crypto_API.xml,TEE_Crypto_API.xsl,xtest_9000.c)
+	$(call patch-xalan,TEE.xml,TEE.xsl,gp_7000.c)
+	$(call patch-xalan,TEE_DataStorage_API.xml,TEE_DataStorage_API.xsl,gp_7500.c)
+	$(call patch-xalan,TEE_Internal_API.xml,TEE_Internal_API.xsl,gp_8000.c)
+	$(call patch-xalan,TEE_TimeArithm_API.xml,TEE_TimeArithm_API.xsl,gp_8500.c)
+	$(call patch-xalan,TEE_Crypto_API.xml,TEE_Crypto_API.xsl,gp_9000.c)
 	@echo "INFO: Patch host tests"
 	# $(q)sed -i '752 c\    xtest_tee_deinit();\n' ${GP_XTEST_OUT_DIR}/xtest_7000.c
 	# $(q)sed -i '1076 c\    xtest_tee_deinit();\n' ${GP_XTEST_OUT_DIR}/xtest_8000.c
 	# $(q)sed -i '2549 c\    xtest_tee_deinit();\n' ${GP_XTEST_OUT_DIR}/xtest_8500.c
 	# $(q)sed -i '246 c\    xtest_tee_deinit();\n' ${GP_XTEST_OUT_DIR}/xtest_9000.c
-	$(call patch-file,host/xtest/xtest_9000.c,${CFG_GP_XSL_PACKAGE_PATH}/host/xtest/xtest_9000.c.patch)
+	$(call patch-file,host/xtest/gp_9000.c,${CFG_GP_XSL_PACKAGE_PATH}/host/xtest/gp_9000.c.patch)
 
 .PHONY: patch-generate-ta
 patch-generate-ta: patch-package
@@ -185,66 +206,20 @@ patch-package:
 	$(call patch-file,${CFG_GP_PACKAGE_PATH}/TTAs/TTA_Time/TTA_Time/code_files/TTA_Time.c,${CFG_GP_XSL_PACKAGE_PATH}/TTAs/TTA_Time/code_patches/v1_1_0_4-2014_11_07/TTA_Time.c.patch)
 
 define patch-filter-one
-	$(q)sed -i 's|^ADBG_SUITE_ENTRY(XTEST_TEE_'${1}', NULL)|/\*ADBG_SUITE_ENTRY(XTEST_TEE_'${1}', NULL)\*/|g' ${GP_XTEST_OUT_DIR}/xtest_main.c
-	$(q)sed -i 's|    ADBG_SUITE_ENTRY(XTEST_TEE_'${1}', NULL)\\|    /\*ADBG_SUITE_ENTRY(XTEST_TEE_'${1}', NULL)\*/\\|g' ${GP_XTEST_OUT_DIR}/adbg_entry_declare.h
+	$(q)sed -i 's|^\(ADBG_CASE_DEFINE(gp,\) $1,\(.*\)$$|/\*\1 $1,\2\*/|g' ${GP_XTEST_OUT_DIR}/$2
+
 endef
 
 .PHONY: patch-filter
 patch-filter:
-	@echo "INFO: Filter some tests"
-	$(call patch-filter-one,7038)
-	$(call patch-filter-one,7522)
-	$(call patch-filter-one,7538)
-	$(call patch-filter-one,7540)
-	$(call patch-filter-one,7546)
-	$(call patch-filter-one,7557)
-	$(call patch-filter-one,7522)
-	$(call patch-filter-one,7538)
-	$(call patch-filter-one,7540)
-	$(call patch-filter-one,7546)
-	$(call patch-filter-one,7557)
-	$(call patch-filter-one,7559)
-	$(call patch-filter-one,7577)
-	$(call patch-filter-one,7641)
-	$(call patch-filter-one,7642)
-	$(call patch-filter-one,7643)
-	$(call patch-filter-one,7644)
-	$(call patch-filter-one,7686)
-	$(call patch-filter-one,8025)
-	$(call patch-filter-one,8058)
-	$(call patch-filter-one,8059)
-	$(call patch-filter-one,8030)
-	$(call patch-filter-one,8066)
-	$(call patch-filter-one,8614)
-	$(call patch-filter-one,8643)
-	$(call patch-filter-one,8644)
-	$(call patch-filter-one,8673)
-	$(call patch-filter-one,8674)
-	$(call patch-filter-one,9001)
-	$(call patch-filter-one,9072)
-	$(call patch-filter-one,9073)
-	$(call patch-filter-one,9075)
-	$(call patch-filter-one,9079)
-	$(call patch-filter-one,9080)
-	$(call patch-filter-one,9082)
-	$(call patch-filter-one,9085)
-	$(call patch-filter-one,9086)
-	$(call patch-filter-one,9088)
-	$(call patch-filter-one,9090)
-	$(call patch-filter-one,9091)
-	$(call patch-filter-one,9093)
-	$(call patch-filter-one,9095)
-	$(call patch-filter-one,9096)
-	$(call patch-filter-one,9098)
-	$(call patch-filter-one,9099)
-	$(call patch-filter-one,9109)
-	$(call patch-filter-one,9110)
-	$(call patch-filter-one,9160)
-	$(call patch-filter-one,9174)
-	$(call patch-filter-one,9195)
-	$(call patch-filter-one,9196)
-	$(call patch-filter-one,9204)
-	$(call patch-filter-one,9239)
+	@echo "INFO: Filter out some tests"
+	@# 7001-7010, 7013, 7016-7019 are in regression_7000.c already
+	$(foreach n,7001 7002 7003 7004 7005 7006 7007 7008 7009 7010 7013 7016 7017 7018 7019,$(call patch-filter-one,$(n),gp_7000.c))
+	$(call patch-filter-one,7038,gp_7000.c)
+	$(foreach n,7522 7538 7540 7546 7557 7559 7577 7641 7642 7643 7644 7686,$(call patch-filter-one,$(n),gp_7500.c))
+	$(foreach n,8025 8030 8058 8059 8066,$(call patch-filter-one,$(n),gp_8000.c))
+	$(foreach n,8614 8643 8644 8673 8674,$(call patch-filter-one,$(n),gp_8500.c))
+	$(foreach n,9001 9072 9073 9075 9079 9080 9082 9085 9086 9088 9090 9091 9093 9095 9096 9098 9099 9109 9110 9160 9174 9195 9196 9204 9239,$(call patch-filter-one,$(n),gp_9000.c))
 
 .PHONY: patch
 patch: patch-openssl patch-generate-host patch-generate-ta
@@ -255,3 +230,11 @@ else
 patch:
 	$(q) echo "Please define CFG_GP_PACKAGE_PATH" && false
 endif
+
+install:
+	$(echo) '  INSTALL ${DESTDIR}/lib/optee_armtz'
+	$(q)mkdir -p ${DESTDIR}/lib/optee_armtz
+	$(q)find $(out-dir) -name \*.ta -exec cp -a {} ${DESTDIR}/lib/optee_armtz \;
+	$(echo) '  INSTALL ${DESTDIR}/bin'
+	$(q)mkdir -p ${DESTDIR}/bin
+	$(q)cp -a $(out-dir)/xtest/xtest ${DESTDIR}/bin

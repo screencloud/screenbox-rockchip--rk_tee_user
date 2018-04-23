@@ -59,7 +59,6 @@ xmlns:fn="http://www.w3.org/2005/xpath-functions" xmlns:xsl="http://www.w3.org/1
 #include &lt;unistd.h&gt;
 #include "xtest_test.h"
 #include "xtest_helpers.h"
-#include "tee_internal_api.h"
 #undef TA_UUID
 #include "ta_answerSuccessTo_OpenSession_Invoke_test.h"
 #undef TA_UUID
@@ -178,15 +177,7 @@ static void xtest_tee_<xsl:value-of select="position()+8000" />(ADBG_Case_t *c)
 </xsl:for-each>
 <xsl:for-each select="initial-state/scenario">
 <xsl:variable name="position" select="position()+8000" />
-ADBG_CASE_DEFINE(XTEST_TEE_<xsl:value-of select="$position" />, xtest_tee_<xsl:value-of select="$position" /><xsl:text>,
-                 /* Title */
-                 "</xsl:text><xsl:value-of select="substring(substring-after(./@name, '('), 0, 9)" /><xsl:text>",
-                 /* Short description */
-                 "</xsl:text><xsl:value-of select="substring-before(./@name, ' ')" /><xsl:text>",
-                 /* Requirement IDs */
-                 "</xsl:text><xsl:value-of select="./req[last()]/@name" /><xsl:text>",
-                 /* How to implement */
-                 "Description of how to implement ...");</xsl:text>
+ADBG_CASE_DEFINE(gp, <xsl:value-of select="$position" />, xtest_tee_<xsl:value-of select="$position" /><xsl:text>, "</xsl:text><xsl:value-of select="substring(substring-after(./@name, '('), 0, 9)" /><xsl:text>");</xsl:text>
 </xsl:for-each>
 </xsl:template>
 

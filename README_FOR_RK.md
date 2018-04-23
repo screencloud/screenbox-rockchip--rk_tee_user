@@ -5,7 +5,11 @@ test suite in Linux using the ARM(R) TrustZone(R) technology.
 
 ##### HOWTO build the testsuite #####
 
-1 build CA/TA
+1 build optee_client first
+* mm Android.mk in optee_client to build Dynamic Library:
+  libteec.so and Executable Binary: tee_supplicant.
+
+2 build CA/TA
 * mm Android.mk in optee_test to build CA(Client Application,
   running in normal world) and TA(Trust Application, running 
   in secure world).

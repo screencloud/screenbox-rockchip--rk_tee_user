@@ -95,7 +95,10 @@ TEE_Result TA_InvokeCommandEntryPoint(void *sess_ctx, uint32_t cmd_id,
 	{
 		TEE_ObjectHandle *obj = TEE_Malloc(sizeof(TEE_ObjectHandle), 0);
 
-		uint32_t storageID = TEE_STORAGE_PRIVATE;
+		/* Test REE file system */
+		uint32_t storageID = TEE_STORAGE_PRIVATE_REE;
+		/* Test RPMB file system */
+		//uint32_t storageID = TEE_STORAGE_PRIVATE_RPMB;
 		uint32_t flags = TEE_DATA_FLAG_ACCESS_READ |
 				TEE_DATA_FLAG_SHARE_READ |
 				TEE_DATA_FLAG_ACCESS_WRITE |

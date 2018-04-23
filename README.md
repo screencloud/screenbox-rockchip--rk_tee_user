@@ -30,9 +30,6 @@ It makes use of the following environment variables:
 * `TA_DEV_KIT_DIR`: the path to the Trusted Application Dev Kit.
   It can be found in optee_os repository, once optee_os has been compiled.
 * `O`: the output repository
-* When the application is compiled in 32bits mode,
-  `CFG_ARM32=y` must be set.
-
 
 #### Extended test (Global Platform tests)
 Developers can purchase the
@@ -54,26 +51,55 @@ This will:
 
 Then the tests must be compiled with `CFG_GP_PACKAGE_PATH=<path>`.
 
+It makes use of the following environment variable:
+* `COMPILE_NS_USER`: `32` or `64` if application shall be compiled in 32 bits
+  mode on in 64 bits mode. If `COMPILE_NS_USER` is not specificed, build relies
+  on `CFG_ARM32_core=y` from OP-TEE core build to assume applications are in
+  32 bits mode, Otherwise, 64 bits mode is assumed.
+
 
 ### HOWTO run xtest
 
 	# all xtest
 	boot and execute on your target
-	$ modprobe optee_armtz
+	$ ifconfig lo 127.0.0.1
 	$ tee-supplicant &
 	$ xtest
 
 	# single xtest
 	boot and execute on your target
-	$ modprobe optee_armtz
+	$ ifconfig lo 127.0.0.1
 	$ tee-supplicant &
 	$ xtest <testnumber> (i.e.: xtest 1001)
 
 	# family xtest (i.e.: Family 1000)
 	boot and execute on your target
-	$ modprobe optee_armtz
+	$ ifconfig lo 127.0.0.1
 	$ tee-supplicant &
 	$ xtest _<family> (i.e.: xtest _1)
+
+	# running all benchmarks (secured storage, aes/sha)
+	boot and execute on your target
+	$ tee-supplicant &
+	$ xtest -t benchmark
+
+	# running single benchmark
+	boot and execute on your target
+	$ tee-supplicant &
+	$ xtest -t benchmark <benchmark_number> (i.e. xtest 2001)
+
+### HOWTO use SHA/AES benchmarking modules
+It's also possible to run SHA/AES benchmarks by using sha-perf/aes-perf modules
+within xtest. These modules allow to run custom benchmarks with user-defined 
+params.
+
+	# running sha-perf with default params
+	boot and execute on your target
+	$ tee-supplicant &
+	$ xtest --sha-perf
+
+	# getting usage details and list of possible options for sha-perf
+	$ xtest --sha-perf -h
 
 #### Compiler flags
 To be able to see the full command when building you could build using following
@@ -89,7 +115,7 @@ By default `optee_test` expects that `optee_client` is located at the same
 folder level. However if you build optee_client in another location, then you
 also would need to use (or export) the following flag:
 
-`$ make OPTEE_CLIENT_PATH=$HOME/my_new_location`
+`$ make OPTEE_CLIENT_EXPORT=$HOME/my_new_location/out/export`
 
 ## Coding standards
 In this project we are trying to adhere to the same coding convention as used in
