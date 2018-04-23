@@ -5,10 +5,19 @@ VERSION = $(shell git describe --always --dirty=-dev 2>/dev/null || echo Unknown
 OPTEE_CLIENT_PATH ?= $(LOCAL_PATH)/client_export
 TA_DEV_KIT_DIR ?= $(OPTEE_TEST_PATH)/export-user_ta
 -include $(TA_DEV_KIT_DIR)/host_include/conf.mk
+
+ifeq (1,$(strip $(shell expr $(PLATFORM_VERSION) \>= 8.0)))
+ifeq ($(strip $(TARGET_ARCH)), arm64)
+CLIENT_LIB_PATH ?= $(shell pwd)/vendor/rockchip/common/security/optee/v1/lib/arm64
+else
+CLIENT_LIB_PATH ?= $(shell pwd)/vendor/rockchip/common/security/optee/v1/lib/arm
+endif
+else
 ifeq ($(strip $(TARGET_ARCH)), arm64)
 CLIENT_LIB_PATH ?= $(shell pwd)/vendor/rockchip/common/security/optee/lib/arm64
 else
 CLIENT_LIB_PATH ?= $(shell pwd)/vendor/rockchip/common/security/optee/lib/arm
+endif
 endif
 
 ################################################################################
