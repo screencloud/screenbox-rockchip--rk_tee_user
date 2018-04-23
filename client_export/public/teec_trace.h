@@ -29,6 +29,9 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdint.h>
+#ifdef RK_PRINT_TO_LOGCAT
+#include <log/log.h>
+#endif
 
 #ifndef BINARY_PREFIX
 #error "BINARY_PREFIX not defined"
@@ -79,6 +82,8 @@
 #define DEBUGLEVEL TRACE_INFO
 #endif
 
+#define TEEC_LOG_TAG "tee_client"
+
 /*
  * This define make sure that parameters are checked in the same manner as it
  * is done in the normal printf function.
@@ -89,12 +94,35 @@
 int _dprintf(const char *function, int flen, int line, int level,
 	     const char *prefix, const char *fmt, ...) __PRINTFLIKE(6, 7);
 
+#ifdef RK_PRINT_TO_LOGCAT
+#define dprintf(level, x...) do { \
+		if ((level) <= DEBUGLEVEL) { \
+			switch (level) { \
+			case TRACE_ERROR: \
+				__android_log_print(ANDROID_LOG_ERROR, TEEC_LOG_TAG, x); \
+				break; \
+			case TRACE_INFO: \
+				__android_log_print(ANDROID_LOG_INFO, TEEC_LOG_TAG, x); \
+				break; \
+			case TRACE_DEBUG: \
+				__android_log_print(ANDROID_LOG_DEBUG, TEEC_LOG_TAG, x); \
+				break; \
+			case TRACE_FLOW: \
+				__android_log_print(ANDROID_LOG_VERBOSE, TEEC_LOG_TAG, x); \
+				break; \
+			default: \
+				break; \
+			} \
+		} \
+	} while (0)
+#else
 #define dprintf(level, x...) do { \
 		if ((level) <= DEBUGLEVEL) { \
 			_dprintf(__func__, strlen(__func__), __LINE__, level, \
 				 BINARY_PREFIX, x); \
 		} \
 	} while (0)
+#endif
 
 #define EMSG(fmt, ...)   dprintf(TRACE_ERROR, fmt "\n", ##__VA_ARGS__)
 #define IMSG(fmt, ...)   dprintf(TRACE_INFO, fmt "\n", ##__VA_ARGS__)
@@ -111,10 +139,14 @@ int _dprintf(const char *function, int flen, int line, int level,
 		return r;                                   \
 	} while (0)
 
+#ifdef RK_PRINT_TO_LOGCAT
+#define dprintf_raw dprintf
+#else
 #define dprintf_raw(level, x...) do { \
 		if ((level) <= DEBUGLEVEL) \
 			_dprintf(0, 0, 0, (level), BINARY_PREFIX, x); \
 	} while (0)
+#endif
 
 #define EMSG_RAW(fmt, ...)   dprintf_raw(TRACE_ERROR, fmt, ##__VA_ARGS__)
 #define IMSG_RAW(fmt, ...)   dprintf_raw(TRACE_INFO, fmt, ##__VA_ARGS__)
