@@ -54,7 +54,7 @@ LOCAL_SRC_FILES += host/rkdemo/rkdemo_ca.c
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/ta/testapp/include \
 		$(OPTEE_CLIENT_PATH)/public
 
-LOCAL_MODULE := rkdemo
+LOCAL_MODULE := testapp
 LOCAL_MODULE_TAGS := optional
 ifeq (1,$(strip $(shell expr $(PLATFORM_VERSION) \>= 8.0)))
 LOCAL_PROPRIETARY_MODULE := true
@@ -74,7 +74,7 @@ LOCAL_SRC_FILES += host/rkdemo/rkdemo_storage_ca.c
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/ta/testapp_storage/include \
 		$(OPTEE_CLIENT_PATH)/public
 
-LOCAL_MODULE := rkdemo_storage
+LOCAL_MODULE := testapp_storage
 LOCAL_MODULE_TAGS := optional
 ifeq (1,$(strip $(shell expr $(PLATFORM_VERSION) \>= 8.0)))
 LOCAL_PROPRIETARY_MODULE := true
