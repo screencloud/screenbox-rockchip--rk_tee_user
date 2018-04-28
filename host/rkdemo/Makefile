@@ -10,7 +10,8 @@ include $(TA_DEV_KIT_DIR)/host_include/conf.mk
 # By default we expect optee_client exported folder to be on a certain relative
 # path, but if the client specifies the OPTEE_CLIENT_EXPORT then that path will
 # be used instead.
-OPTEE_CLIENT_EXPORT ?= ../../../optee_client/out/export
+OPTEE_CLIENT_EXPORT ?= ../../client_export/
+OPTEE_CLIENT_LIB ?= ../../../bin/optee_v2/lib/arm64/
 
 CC		?= $(CROSS_COMPILE)gcc
 CPP		?= $(CROSS_COMPILE)cpp
@@ -29,7 +30,7 @@ srcs1 := testapp_storage_ca.c
 objs1 	:= $(patsubst %.c,$(O)/%.o, $(srcs1))
 
 
-CFLAGS += -I$(OPTEE_CLIENT_EXPORT)/include
+CFLAGS += -I$(OPTEE_CLIENT_EXPORT)/public
 CFLAGS += -I$(TA_DEV_KIT_DIR)/host_include
 CFLAGS += -I../../ta/testapp/include
 CFLAGS += -I../../ta/testapp_storage/include
@@ -43,6 +44,7 @@ CFLAGS += -Wall -Wcast-align  \
 	  -Wwrite-strings \
 	  -Wno-missing-field-initializers -Wno-format-zero-length
 
+LDFLAGS += -L$(OPTEE_CLIENT_LIB)
 LDFLAGS += -L$(OPTEE_CLIENT_EXPORT)/lib -lteec
 
 
