@@ -53,7 +53,7 @@ TAs:
 ################################################################################
 include $(CLEAR_VARS)
 LOCAL_CFLAGS += -DANDROID_BUILD -DUSER_SPACE
-LOCAL_CFLAGS += -Wall
+LOCAL_CFLAGS += -Wall -Wno-error
 LOCAL_LDFLAGS += $(CLIENT_LIB_PATH)/libteec.so
 LOCAL_LDFLAGS += -llog
 
@@ -74,7 +74,7 @@ include $(BUILD_EXECUTABLE)
 ################################################################################
 include $(CLEAR_VARS)
 LOCAL_CFLAGS += -DANDROID_BUILD -DUSER_SPACE
-LOCAL_CFLAGS += -Wall
+LOCAL_CFLAGS += -Wall -Wno-error
 LOCAL_LDFLAGS += $(CLIENT_LIB_PATH)/libteec.so
 LOCAL_LDFLAGS += -llog
 
