@@ -17,6 +17,7 @@
 
 srcs :=
 gen-srcs :=
+asm-defines-files :=
 
 define process-subdir-srcs-y
 ifeq ($$(sub-dir),.)
@@ -41,6 +42,9 @@ cppflags-remove-$$(oname) 	:= $$(cppflags-remove-y) \
 aflags-$$(oname) 		:= $$(aflags-y) $$(aflags-$(1)-y)
 aflags-remove-$$(oname) 	:= $$(aflags-remove-y) \
 					$$(aflags-remove-$(1)-y)
+cxxflags-$$(oname)		:= $$(cxxflags-y) $$(cxxflags-$(1)-y)
+cxxflags-remove-$$(oname)	:= $$(cxxflags-remove-y) \
+					$$(cxxflags-remove-$(1)-y)
 incdirs-$$(oname)		:= $$(thissubdir-incdirs) $$(addprefix $(sub-dir)/,$$(incdirs-$(1)-y))
 # Clear local filename specific variables to avoid accidental reuse
 # in another subdirectory
@@ -66,7 +70,7 @@ define process-subdir-gensrcs-helper
 gen-srcs			+= $2
 oname				:= $3
 
-FORCE-GENSRC: $2
+FORCE-GENSRC$(sm): $2
 
 $$(addprefix $4,$$(produce-additional-$1)): $2
 
@@ -107,6 +111,10 @@ define process-subdir-gensrcs-y
 $$(eval $$(call process-subdir-gensrcs-helper,$1,$(sub-dir-out)/$$(produce-$1),$(sub-dir-out)/$(basename $(produce-$1)).o,$(sub-dir-out)))
 endef #process-subdir-gensrcs-y
 
+define process-subdir-asm-defines-y
+asm-defines-files += $(sub-dir)/$1
+endef #process-subdir-asm-defines-y
+
 define process-subdir
 sub-dir := $1
 ifeq ($1,.)
@@ -128,6 +136,7 @@ endif
 # Process files in current directory
 $$(foreach g, $$(gensrcs-y), $$(eval $$(call process-subdir-gensrcs-y,$$(g))))
 $$(foreach s, $$(srcs-y), $$(eval $$(call process-subdir-srcs-y,$$(s))))
+$$(foreach a, $$(asm-defines-y), $$(eval $$(call process-subdir-asm-defines-y,$$(a))))
 # Clear flags used when processing current directory
 srcs-y :=
 cflags-y :=
@@ -142,6 +151,7 @@ incdirs-lib-y :=
 incdirs-y :=
 gensrcs-y :=
 this-out-dir :=
+asm-defines-y :=
 
 # Process subdirectories in current directory
 $$(foreach sd, $$(sub-subdirs), $$(eval $$(call process-subdir,$$(sd))))

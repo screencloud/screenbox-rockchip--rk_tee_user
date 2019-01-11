@@ -1,7 +1,9 @@
 
 CC$(sm)		:= $(CROSS_COMPILE_$(sm))gcc
 CPP$(sm)	:= $(CROSS_COMPILE_$(sm))cpp
-LD$(sm)		:= $(CROSS_COMPILE_$(sm))ld
+CXX$(sm)	:= $(CROSS_COMPILE_$(sm))g++
+AS$(sm)		:= $(CROSS_COMPILE_$(sm))as
+LD$(sm)		:= $(CROSS_COMPILE_$(sm))ld.bfd
 AR$(sm)		:= $(CROSS_COMPILE_$(sm))ar
 NM$(sm)		:= $(CROSS_COMPILE_$(sm))nm
 OBJCOPY$(sm)	:= $(CROSS_COMPILE_$(sm))objcopy

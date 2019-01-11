@@ -1,36 +1,22 @@
+/* SPDX-License-Identifier: BSD-2-Clause */
 /*
  * Copyright (c) 2014, STMicroelectronics International N.V.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- * 1. Redistributions of source code must retain the above copyright notice,
- * this list of conditions and the following disclaimer.
- *
- * 2. Redistributions in binary form must reproduce the above copyright notice,
- * this list of conditions and the following disclaimer in the documentation
- * and/or other materials provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
  */
 #ifndef UTIL_H
 #define UTIL_H
 
 #include <compiler.h>
-#include <stdint.h>
+#include <inttypes.h>
+
+#define SIZE_4K	UINTPTR_C(0x1000)
+#define SIZE_1M	UINTPTR_C(0x100000)
+#define SIZE_2M	UINTPTR_C(0x200000)
+#define SIZE_4M	UINTPTR_C(0x400000)
+#define SIZE_8M	UINTPTR_C(0x800000)
+#define SIZE_2G	UINTPTR_C(0x80000000)
 
 #ifndef MAX
+#ifndef ASM
 #define MAX(a, b) \
 	(__extension__({ __typeof__(a) _a = (a); \
 	   __typeof__(b) _b = (b); \
@@ -40,16 +26,33 @@
 	(__extension__({ __typeof__(a) _a = (a); \
 	   __typeof__(b) _b = (b); \
 	 _a < _b ? _a : _b; }))
+#else
+#define MAX(a, b)	(((a) > (b)) ? (a) : (b))
+#define MIN(a, b)	(((a) < (b)) ? (a) : (b))
 #endif
+#endif
+
+/*
+ * In some particular conditions MAX and MIN macros fail to
+ * build from C source file implmentation. In such case one
+ * need to use MAX_UNSAFE/MIN_UNSAFE instead.
+ */
+#define MAX_UNSAFE(a, b)	(((a) > (b)) ? (a) : (b))
+#define MIN_UNSAFE(a, b)	(((a) < (b)) ? (a) : (b))
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
+#ifndef ASM
 /* Round up the even multiple of size, size has to be a multiple of 2 */
 #define ROUNDUP(v, size) (((v) + ((__typeof__(v))(size) - 1)) & \
 			  ~((__typeof__(v))(size) - 1))
 
 /* Round down the even multiple of size, size has to be a multiple of 2 */
 #define ROUNDDOWN(v, size) ((v) & ~((__typeof__(v))(size) - 1))
+#else
+#define ROUNDUP(x, y)			((((x) + (y) - 1) / (y)) * (y))
+#define ROUNDDOWN(x, y)		(((x) / (y)) * (y))
+#endif
 
 /* x has to be of an unsigned type */
 #define IS_POWER_OF_TWO(x) (((x) != 0) && (((x) & (~(x) + 1)) == (x)))
@@ -59,6 +62,9 @@
 
 #define TO_STR(x) _TO_STR(x)
 #define _TO_STR(x) #x
+
+#define CONCAT(x, y) _CONCAT(x, y)
+#define _CONCAT(x, y) x##y
 
 #define container_of(ptr, type, member) \
 	(__extension__({ \
@@ -102,5 +108,14 @@
 #define ADD_OVERFLOW(a, b, res) __compiler_add_overflow((a), (b), (res))
 #define SUB_OVERFLOW(a, b, res) __compiler_sub_overflow((a), (b), (res))
 #define MUL_OVERFLOW(a, b, res) __compiler_mul_overflow((a), (b), (res))
+
+/* Return a signed +1, 0 or -1 value based on data comparison */
+#define CMP_TRILEAN(a, b) \
+	(__extension__({ \
+		__typeof__(a) _a = (a); \
+		__typeof__(b) _b = (b); \
+		\
+		_a > _b ? 1 : _a < _b ? -1 : 0; \
+	}))
 
 #endif /*UTIL_H*/
