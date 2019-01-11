@@ -41,4 +41,7 @@ int vsnprintf (char *str, size_t size, const char *fmt, va_list ap)
 
 int puts(const char *str);
 
+int sscanf(const char *str, const char *format, ...)
+	__attribute__ ((__format__ (__scanf__, 2, 3)))
+	__attribute__ ((__noreturn__));
 #endif /*STDIO_H*/

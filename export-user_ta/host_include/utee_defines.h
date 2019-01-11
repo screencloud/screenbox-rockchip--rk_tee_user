@@ -78,6 +78,9 @@
 	/* Bits [15:12] */
 #define TEE_ALG_GET_DIGEST_HASH(algo)   (((algo) >> 12) & 0xF)
 
+	/* Bits [19:16] */
+#define TEE_ALG_GET_ECC_CURVE(algo)   (((algo) >> 16) & 0xF)
+
 	/* Bits [23:20] */
 #define TEE_ALG_GET_INTERNAL_HASH(algo) (((algo) >> 20) & 0x7)
 

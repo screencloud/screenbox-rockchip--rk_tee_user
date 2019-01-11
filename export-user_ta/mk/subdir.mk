@@ -40,6 +40,9 @@ cppflags-remove-$$(oname) 	:= $$(cppflags-remove-y) \
 aflags-$$(oname) 		:= $$(aflags-y) $$(aflags-$(1)-y)
 aflags-remove-$$(oname) 	:= $$(aflags-remove-y) \
 					$$(aflags-remove-$(1)-y)
+cxxflags-$$(oname)		:= $$(cxxflags-y) $$(cxxflags-$(1)-y)
+cxxflags-remove-$$(oname)	:= $$(cxxflags-remove-y) \
+					$$(cxxflags-remove-$(1)-y)
 incdirs-$$(oname)		:= $$(thissubdir-incdirs) $$(addprefix $(sub-dir)/,$$(incdirs-$(1)-y))
 # Clear local filename specific variables to avoid accidental reuse
 # in another subdirectory

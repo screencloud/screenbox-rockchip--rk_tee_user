@@ -102,8 +102,12 @@
 #define TEE_SCN_CACHE_OPERATION			71
 #define TEE_SCN_GET_PROPERTY			72
 #define TEE_SCN_GET_PROPERTY_NAME_TO_INDEX	73
+#define TEE_SCN_CRYP_RANDOM_NUMBER_ADD_ENTROPY 74
+#define TEE_SCN_DERIVE_KEY_FROM_HARD		75
+#define TEE_SCN_SAVE_TA_IMAGE			76
 
-#define TEE_SCN_MAX				73
+
+#define TEE_SCN_MAX				76
 
 /* Maximum number of allowed arguments for a syscall */
 #define TEE_SVC_MAX_ARGS			8

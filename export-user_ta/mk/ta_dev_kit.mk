@@ -38,6 +38,7 @@ endif
 cppflags$(sm)  := $($(sm)-platform-cppflags)
 aflags$(sm)    := $($(sm)-platform-aflags)
 cflags$(sm)    := $($(sm)-platform-cflags)
+cxxflags$(sm)  := $($(sm)-platform-cxxflags)
 
 CFG_TEE_TA_LOG_LEVEL ?= 2
 cppflags$(sm) += -DTRACE_LEVEL=$(CFG_TEE_TA_LOG_LEVEL)
@@ -50,10 +51,11 @@ endif
 cppflags$(sm) += -I. -I$(ta-dev-kit-dir)/include
 
 libdirs += $(ta-dev-kit-dir)/lib
-libnames += utils utee mpa utils utee
+libnames += utils utee mpa crypto utils utee
 libdeps += $(ta-dev-kit-dir)/lib/libutils.a
 libdeps += $(ta-dev-kit-dir)/lib/libmpa.a
 libdeps += $(ta-dev-kit-dir)/lib/libutee.a
+libdeps += $(ta-dev-kit-dir)/lib/libcrypto.a
 
 .PHONY: clean
 clean:

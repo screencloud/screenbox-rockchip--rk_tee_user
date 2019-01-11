@@ -5,7 +5,12 @@ link-script-pp = $(link-out-dir)/ta.lds
 link-script-dep = $(link-out-dir)/.ta.ld.d
 
 SIGN = $(TA_DEV_KIT_DIR)/scripts/sign.py
-TA_SIGN_KEY ?= $(TA_DEV_KIT_DIR)/keys/default_ta.pem
+#TA_SIGN_KEY ?= $(TA_DEV_KIT_DIR)/keys/default_ta.pem
+TA_SIGN_KEY := $(TA_DEV_KIT_DIR)/keys/rk_privkey.pem
+
+ifneq ($(TA_SIGN_KEY), $(wildcard $(TA_SIGN_KEY)))
+TA_SIGN_KEY := $(TA_DEV_KIT_DIR)/keys/oem_privkey.pem
+endif
 
 all: $(link-out-dir)/$(binary).elf $(link-out-dir)/$(binary).dmp \
 	$(link-out-dir)/$(binary).stripped.elf $(link-out-dir)/$(binary).ta
@@ -58,4 +63,5 @@ $(link-out-dir)/$(binary).stripped.elf: $(link-out-dir)/$(binary).elf
 $(link-out-dir)/$(binary).ta: $(link-out-dir)/$(binary).stripped.elf \
 				$(TA_SIGN_KEY)
 	@echo '  SIGN    $@'
+	@echo '  SIGN KEY $(TA_SIGN_KEY)'
 	$(q)$(SIGN) --key $(TA_SIGN_KEY) --in $< --out $@

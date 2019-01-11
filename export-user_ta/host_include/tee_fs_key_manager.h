@@ -58,6 +58,10 @@ struct block_header {
 	struct common_header common;
 };
 
+#ifdef CFG_RK_SSK_COMPATIBILITY
+void rk_change_ssk(void);
+#endif
+
 size_t tee_fs_get_header_size(enum tee_fs_file_type type);
 TEE_Result tee_fs_generate_fek(uint8_t *encrypted_fek, int fek_size);
 TEE_Result tee_fs_encrypt_file(enum tee_fs_file_type file_type,

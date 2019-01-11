@@ -46,4 +46,7 @@ void _assert_log(const char *expr, const char *file, int line);
 		switch (0) { case 0: case ((x) ? 1: 0): default : break; } \
 	} while (0)
 
+/* Unconditional assert */
+#define ASSERT(expr) assert(expr)
+
 #endif

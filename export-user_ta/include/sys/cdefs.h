@@ -41,4 +41,7 @@
 #endif
 #endif
 
+/* for bsearch.c */
+#define __UNCONST(a)    ((void *)(unsigned long)(const void *)(a))
+
 #endif /*SYS_CDEFS_H*/

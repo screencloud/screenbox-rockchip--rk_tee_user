@@ -357,6 +357,14 @@ void TEE_GenerateRandom(void *randomBuffer, uint32_t randomBufferLen);
 
 void TEE_RandomAddEntropy(void *entropyBuffer, uint32_t entropyBufferLen);
 
+/*TA can use TEE_DerivekeyFromHard to derive key from hard unique key
+*data should not be NULL; dataLen should not be 0.
+*key should not be NULL; keyLen should bigger than 0 and not bigger than 32.
+*/
+void TEE_DerivekeyFromHard(void *data, uint32_t dataLen, void *key, uint32_t keyLen);
+
+/*used for TA update*/
+TEE_Result TEE_SaveTaImage(const TEE_UUID *uuid, void *buf, uint64_t len);
 
 /* Date & Time API */
 

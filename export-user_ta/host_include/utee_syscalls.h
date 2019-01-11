@@ -151,6 +151,10 @@ TEE_Result utee_cryp_derive_key(unsigned long state,
 
 TEE_Result utee_cryp_random_number_generate(void *buf, size_t blen);
 
+TEE_Result utee_cryp_random_number_add_entropy(void *buf, size_t blen);
+TEE_Result utee_derive_key_from_hard(void *data, size_t dataLen,
+			void *key, size_t keyLen);
+TEE_Result utee_save_ta_image(const TEE_UUID *uuid, void *buf, uint64_t len);
 TEE_Result utee_authenc_init(unsigned long state, const void *nonce,
 			size_t nonce_len, size_t tag_len, size_t aad_len,
 			size_t payload_len);
