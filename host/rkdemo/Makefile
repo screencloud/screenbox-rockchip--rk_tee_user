@@ -11,7 +11,12 @@ include $(TA_DEV_KIT_DIR)/host_include/conf.mk
 # path, but if the client specifies the OPTEE_CLIENT_EXPORT then that path will
 # be used instead.
 OPTEE_CLIENT_EXPORT ?= ../../client_export/
+ifeq "$(COMPILE_NS_USER)" "64"
 OPTEE_CLIENT_LIB ?= ../../../bin/optee_v2/lib/arm64/
+else
+OPTEE_CLIENT_LIB ?= ../../../bin/optee_v2/lib/arm/
+endif
+
 
 CC		?= $(CROSS_COMPILE)gcc
 CPP		?= $(CROSS_COMPILE)cpp
@@ -59,11 +64,12 @@ testapp: $(objs)
 testapp_storage: $(objs1)
 	@echo "  LD      $(O)/$@"
 	$(q)@$(CC) -o $(O)/$@ $+ $(LDFLAGS)
+	@echo "  OPTEE_CLIENT_LIB=$(OPTEE_CLIENT_LIB)"
 
 libRkWvClient.so: $(objs2)
 	@echo "  LD      $(O)/$@"
 	$(q)@$(CC) -shared -Wl,-soname -o $(O)/$@ $+ $(LDFLAGS)
-
+	@echo "  OPTEE_CLIENT_LIB=$(OPTEE_CLIENT_LIB)"
 
 $(O)/%.o: $(CURDIR)/%.c
 	$(q)mkdir -p $(O)/
