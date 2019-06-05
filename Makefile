@@ -16,7 +16,11 @@ endif
 
 .PHONY: all
 ifneq ($(wildcard $(TA_DEV_KIT_DIR)/host_include/conf.mk),)
+ifeq "$(BUILD_CA)" "y"
+all: rkdemo ta
+else
 all: ta
+endif
 else
 all:
 	$(q)echo "TA_DEV_KIT_DIR is not correctly defined" && false
@@ -28,6 +32,14 @@ ta:
 			  q=$(q) \
 			  O=$(out-dir)/ta \
 			  $@
+
+.PHONY: rkdemo
+rkdemo:
+	$(q)$(MAKE) -C host/rkdemo CROSS_COMPILE="$(CROSS_COMPILE_HOST)" \
+				--no-builtin-variables \
+				q=$(q) \
+				O=$(out-dir)/rkdemo  \
+				$@
 
 .PHONY: clean
 ifneq ($(wildcard $(TA_DEV_KIT_DIR)/host_include/conf.mk),)

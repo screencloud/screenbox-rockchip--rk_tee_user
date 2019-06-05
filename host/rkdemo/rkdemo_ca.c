@@ -24,8 +24,6 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-
-#include "android/log.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -34,9 +32,6 @@
 #include <ta_testapp.h>
 
 #define BUF_SIZE 128
-
-#define LOG_TAG "testapp"
-#define ALOGD(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
 
 unsigned char membuf_input[] = "test_membuf_from_CA_to_TA";
 

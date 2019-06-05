@@ -25,7 +25,6 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "android/log.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -34,9 +33,6 @@
 #include <ta_testapp_storage.h>
 
 #define BUF_SIZE 128
-
-#define LOG_TAG "testapp_storage"
-#define ALOGD(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
 
 int main(void)
 {
