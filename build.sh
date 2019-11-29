@@ -5,14 +5,23 @@ WORK_DIR_TOP=$(cd `dirname $0` ; pwd)
 #./build.sh 3264 to compile CA with 32 bits and TA with 64 bits
 #./build.sh 6464 to compile CA TA with 64 bits
 #./build.sh 6432 to compile CA with 64 bits and TA with 32 bits
+#./build.sh ta to compile TA with 32 bits
 
-AARCH64_TOOLCHAIN=$WORK_DIR_TOP/../../../prebuilts/gcc/linux-x86/aarch64/gcc-linaro-6.3.1-2017.05-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
-ARM32_TOOLCHAIN=$WORK_DIR_TOP/../../../prebuilts/gcc/linux-x86/arm/gcc-linaro-arm-linux-gnueabihf-4.9-2014.05_linux/bin/arm-linux-gnueabihf-
+TOOLCHAIN_PREBUILTS=$WORK_DIR_TOP/../../prebuilts
+TOOLCHAIN_PATH_ARM32=gcc/linux-x86/arm/gcc-linaro-6.3.1-2017.05-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-
+TOOLCHAIN_PATH_AARCH64=gcc/linux-x86/aarch64/gcc-linaro-6.3.1-2017.05-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
 
-make TA_DEV_KIT_DIR=$WORK_DIR_TOP/export-user_ta clean
-export BUILD_CA=y
+if [ ! -d "$TOOLCHAIN_PREBUILTS" ]; then
+	TOOLCHAIN_PREBUILTS=$WORK_DIR_TOP/../../../prebuilts
+fi
+
+AARCH64_TOOLCHAIN=$TOOLCHAIN_PREBUILTS/$TOOLCHAIN_PATH_AARCH64
+ARM32_TOOLCHAIN=$TOOLCHAIN_PREBUILTS/$TOOLCHAIN_PATH_ARM32
+
+make TA_DEV_KIT_DIR=$WORK_DIR_TOP/export-ta_arm32 clean
 BUILD_CATA_BITS="$1"
 if [ "$BUILD_CATA_BITS" == "3232" ]; then
+	export BUILD_CA=y
 	make CROSS_COMPILE_HOST=$ARM32_TOOLCHAIN \
 	CROSS_COMPILE_TA=$ARM32_TOOLCHAIN \
 	CROSS_COMPILE_user_ta=$ARM32_TOOLCHAIN \
@@ -23,6 +32,7 @@ if [ "$BUILD_CATA_BITS" == "3232" ]; then
 fi
 
 if [ "$BUILD_CATA_BITS" == "3264" ]; then
+	export BUILD_CA=y
 	make CROSS_COMPILE_HOST=$ARM32_TOOLCHAIN \
 	CROSS_COMPILE_TA=$AARCH64_TOOLCHAIN \
 	CROSS_COMPILE_user_ta=$AARCH64_TOOLCHAIN \
@@ -33,6 +43,7 @@ if [ "$BUILD_CATA_BITS" == "3264" ]; then
 fi
 
 if [ "$BUILD_CATA_BITS" == "6464" ]; then
+	export BUILD_CA=y
 	make CROSS_COMPILE_HOST=$AARCH64_TOOLCHAIN \
 	CROSS_COMPILE_TA=$AARCH64_TOOLCHAIN \
 	CROSS_COMPILE_user_ta=$AARCH64_TOOLCHAIN \
@@ -43,6 +54,7 @@ if [ "$BUILD_CATA_BITS" == "6464" ]; then
 fi
 
 if [ "$BUILD_CATA_BITS" == "6432" ]; then
+	export BUILD_CA=y
 	make CROSS_COMPILE_HOST=$AARCH64_TOOLCHAIN \
 	CROSS_COMPILE_TA=$ARM32_TOOLCHAIN \
 	CROSS_COMPILE_user_ta=$ARM32_TOOLCHAIN \
@@ -53,6 +65,17 @@ if [ "$BUILD_CATA_BITS" == "6432" ]; then
 fi
 
 if [ "$BUILD_CATA_BITS" == "" ]; then
+	export BUILD_CA=y
+	make CROSS_COMPILE_HOST=$ARM32_TOOLCHAIN \
+	CROSS_COMPILE_TA=$ARM32_TOOLCHAIN \
+	CROSS_COMPILE_user_ta=$ARM32_TOOLCHAIN \
+	CROSS_COMPILE=$ARM32_TOOLCHAIN \
+	TA_DEV_KIT_DIR=$WORK_DIR_TOP/export-ta_arm32 \
+	COMPILE_NS_USER=32 \
+	O=$WORK_DIR_TOP/out
+fi
+
+if [ "$BUILD_CATA_BITS" == "ta" ]; then
 	make CROSS_COMPILE_HOST=$ARM32_TOOLCHAIN \
 	CROSS_COMPILE_TA=$ARM32_TOOLCHAIN \
 	CROSS_COMPILE_user_ta=$ARM32_TOOLCHAIN \

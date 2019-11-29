@@ -27,28 +27,6 @@ else
 endif
 
 ################################################################################
-# Build TA                                                                  #
-################################################################################
-TEE_CROSS_COMPILE ?= $(shell pwd)/prebuilts/gcc/linux-x86/arm/arm-eabi-4.8/bin/arm-eabi-
-TEE_CROSS_COMPILE_HOST ?= $(shell pwd)/prebuilts/gcc/linux-x86/arm/arm-eabi-4.8/bin/arm-eabi-
-TEE_CROSS_COMPILE_TA ?= $(shell pwd)/prebuilts/gcc/linux-x86/arm/arm-eabi-4.8/bin/arm-eabi-
-TEE_CROSS_COMPILE_user_ta ?= $(shell pwd)/prebuilts/gcc/linux-x86/arm/arm-eabi-4.8/bin/arm-eabi-
-
-
-.PHONY: TAs
-TAs:
-	$(MAKE) -C $(OPTEE_TEST_PATH) O=$(OPTEE_TEST_PATH) TA_DEV_KIT_DIR=$(TA_DEV_KIT_DIR) clean
-	$(MAKE) -C $(OPTEE_TEST_PATH) CROSS_COMPILE=$(TEE_CROSS_COMPILE) \
-	CROSS_COMPILE_HOST=$(TEE_CROSS_COMPILE_HOST) \
-	CROSS_COMPILE_TA=$(TEE_CROSS_COMPILE_TA) \
-	CROSS_COMPILE_user_ta=$(TEE_CROSS_COMPILE_user_ta) \
-	TA_DEV_KIT_DIR=$(TA_DEV_KIT_DIR) \
-	O=$(OPTEE_TEST_PATH)
-
-%.ta: TAs
-	@echo compiling ta ...
-
-################################################################################
 # Build testapp                                                                #
 ################################################################################
 include $(CLEAR_VARS)
@@ -64,7 +42,7 @@ LOCAL_C_INCLUDES := $(LOCAL_PATH)/ta/testapp/include \
 
 LOCAL_MODULE := testapp
 LOCAL_MODULE_TAGS := optional
-ifeq (1,$(strip $(shell expr $(PLATFORM_VERSION) \>= 8.0)))
+ifeq (1,$(strip $(shell expr $(PLATFORM_VERSION) \>= 8)))
 	LOCAL_PROPRIETARY_MODULE := true
 endif
 include $(BUILD_EXECUTABLE)
@@ -85,7 +63,7 @@ LOCAL_C_INCLUDES := $(LOCAL_PATH)/ta/testapp_storage/include \
 
 LOCAL_MODULE := testapp_storage
 LOCAL_MODULE_TAGS := optional
-ifeq (1,$(strip $(shell expr $(PLATFORM_VERSION) \>= 8.0)))
+ifeq (1,$(strip $(shell expr $(PLATFORM_VERSION) \>= 8)))
 	LOCAL_PROPRIETARY_MODULE := true
 endif
 include $(BUILD_EXECUTABLE)
