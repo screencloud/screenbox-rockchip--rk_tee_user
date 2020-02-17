@@ -26,6 +26,11 @@
  */
 #ifndef TEEC_TRACE_H
 #define TEEC_TRACE_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <string.h>
 #include <stdio.h>
 #include <stdint.h>
@@ -91,8 +96,8 @@
 #define __PRINTFLIKE(__fmt, __varargs) __attribute__\
 	((__format__(__printf__, __fmt, __varargs)))
 
-int _dprintf(const char *function, int flen, int line, int level,
-	     const char *prefix, const char *fmt, ...) __PRINTFLIKE(6, 7);
+void _dprintf(const char *function, int line, int level, const char *prefix,
+	      const char *fmt, ...) __PRINTFLIKE(5, 6);
 
 #ifdef RK_PRINT_TO_LOGCAT
 #define dprintf(level, x...) do { \
@@ -118,7 +123,7 @@ int _dprintf(const char *function, int flen, int line, int level,
 #else
 #define dprintf(level, x...) do { \
 		if ((level) <= DEBUGLEVEL) { \
-			_dprintf(__func__, strlen(__func__), __LINE__, level, \
+			_dprintf(__func__, __LINE__, level, \
 				 BINARY_PREFIX, x); \
 		} \
 	} while (0)
@@ -144,7 +149,7 @@ int _dprintf(const char *function, int flen, int line, int level,
 #else
 #define dprintf_raw(level, x...) do { \
 		if ((level) <= DEBUGLEVEL) \
-			_dprintf(0, 0, 0, (level), BINARY_PREFIX, x); \
+			_dprintf(0, 0, (level), BINARY_PREFIX, x); \
 	} while (0)
 #endif
 
@@ -166,5 +171,9 @@ int _dprintf(const char *function, int flen, int line, int level,
  * @return void
  */
 void dump_buffer(const char *bname, const uint8_t *buffer, size_t blen);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
