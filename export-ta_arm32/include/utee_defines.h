@@ -18,10 +18,12 @@
 #define TEE_MAIN_ALGO_SHA256     0x04
 #define TEE_MAIN_ALGO_SHA384     0x05
 #define TEE_MAIN_ALGO_SHA512     0x06
+#define TEE_MAIN_ALGO_SM3        0x08
 #define TEE_MAIN_ALGO_AES        0x10
 #define TEE_MAIN_ALGO_DES        0x11
 #define TEE_MAIN_ALGO_DES2       0x12
 #define TEE_MAIN_ALGO_DES3       0x13
+#define TEE_MAIN_ALGO_SM4        0x15
 #define TEE_MAIN_ALGO_RSA        0x30
 #define TEE_MAIN_ALGO_DSA        0x31
 #define TEE_MAIN_ALGO_DH         0x32
@@ -59,8 +61,8 @@
 	/* Bits [15:12] */
 #define TEE_ALG_GET_DIGEST_HASH(algo)   (((algo) >> 12) & 0xF)
 
-	/* Bits [19:16] */
-#define TEE_ALG_GET_ECC_CURVE(algo)   (((algo) >> 16) & 0xF)
+	/* Bits [15:12] */
+#define TEE_ALG_GET_ECC_CURVE(algo)   (((algo) >> 12) & 0xF)
 
 	/* Bits [23:20] */
 #define TEE_ALG_GET_INTERNAL_HASH(algo) (((algo) >> 20) & 0x7)
@@ -83,9 +85,10 @@
 
 #define TEE_AES_BLOCK_SIZE  16UL
 #define TEE_DES_BLOCK_SIZE  8UL
+#define TEE_SM4_BLOCK_SIZE  16UL
 
 #define TEE_AES_MAX_KEY_SIZE    32UL
-
+#define TEE_SM4_MAX_KEY_SIZE    16UL
 	/* SHA-512 */
 #ifndef TEE_MD5_HASH_SIZE
 typedef enum {
@@ -93,6 +96,7 @@ typedef enum {
 	TEE_SHA1_HASH_SIZE = 20,
 	TEE_SHA224_HASH_SIZE = 28,
 	TEE_SHA256_HASH_SIZE = 32,
+	TEE_SM3_HASH_SIZE = 32,
 	TEE_SHA384_HASH_SIZE = 48,
 	TEE_SHA512_HASH_SIZE = 64,
 	TEE_MD5SHA1_HASH_SIZE = (TEE_MD5_HASH_SIZE + TEE_SHA1_HASH_SIZE),

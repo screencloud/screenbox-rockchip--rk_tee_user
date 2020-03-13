@@ -56,10 +56,18 @@ cppflags$(sm) += -DTRACE_LEVEL=$(CFG_TEE_TA_LOG_LEVEL)
 
 cppflags$(sm) += -I. -I$(ta-dev-kit-dir$(sm))/include
 
+ifeq ($(CFG_TA_MCOUNT),y)
+cppflags$(sm) += -pg
+endif
+
 libdirs += $(ta-dev-kit-dir$(sm))/lib
-libnames += utils utee mpa
+libnames += utils
 libdeps += $(ta-dev-kit-dir$(sm))/lib/libutils.a
+ifneq ($(CFG_TA_MBEDTLS_MPI),y)
+libnames += mpa
 libdeps += $(ta-dev-kit-dir$(sm))/lib/libmpa.a
+endif
+libnames += utee
 libdeps += $(ta-dev-kit-dir$(sm))/lib/libutee.a
 libnames += crypto
 libdeps += $(ta-dev-kit-dir$(sm))/lib/libcrypto.a
